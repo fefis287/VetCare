@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Prontuário de {{ prontuario.animal.nome }} — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div>
+    <h1>Prontuário — {{ prontuario.animal.nome }}</h1>
+    <p>{{ prontuario.data | datahora }} · {{ prontuario.veterinario.nome }} (CRMV {{ prontuario.veterinario.crmv }})</p>
+  </div>
+  <a class="botao" href="{{ url_for('clinico.nova_receita', prontuario_id=prontuario.id) }}">Emitir receita</a>
+</div>
+
+<section class="bloco">
+  <h2>Identificação</h2>
+  <div class="bloco-corpo definicoes">
+    <div><span>Animal</span><b><a href="{{ url_for('cadastros.ficha_animal', animal_id=prontuario.animal_id) }}">{{ prontuario.animal.nome }}</a></b></div>
+    <div><span>Espécie</span><b>{{ prontuario.animal.especie.nome }}</b></div>
+    <div><span>Idade</span><b>{{ prontuario.animal.idade }}</b></div>
+    <div><span>Peso na consulta</span><b>{{ prontuario.peso_registrado ~ ' kg' if prontuario.peso_registrado else '—' }}</b></div>
+    <div><span>Tutor</span><b>{{ prontuario.animal.tutor.nome }}</b></div>
+  </div>
+</section>
+
+<section class="bloco">
+  <h2>Atendimento</h2>
+  <div class="bloco-corpo">
+    <span style="font-size:12px;color:var(--tinta-fraca)">Anamnese</span>
+    <p class="texto-clinico">{{ prontuario.anamnese }}</p>
+
+    <span style="font-size:12px;color:var(--tinta-fraca)">Exame físico</span>
+    <p class="texto-clinico">{{ prontuario.exame_fisico or '—' }}</p>
+
+    <span style="font-size:12px;color:var(--tinta-fraca)">Diagnóstico</span>
+    <p class="texto-clinico">{{ prontuario.diagnostico }}</p>
+
+    <span style="font-size:12px;color:var(--tinta-fraca)">Conduta e tratamento</span>
+    <p class="texto-clinico">{{ prontuario.tratamento or '—' }}</p>
+  </div>
+</section>
+
+<section class="bloco">
+  <h2>Receitas emitidas</h2>
+  {% if prontuario.receitas %}
+  <table>
+    <thead><tr><th>Data</th><th>Medicamentos</th><th></th></tr></thead>
+    <tbody>
+      {% for receita in prontuario.receitas %}
+      <tr>
+        <td>{{ receita.data | data }}</td>
+        <td>{{ receita.itens | map(attribute='medicamento') | join(', ') }}</td>
+        <td><a class="botao neutro pequeno" href="{{ url_for('clinico.ver_receita', receita_id=receita.id) }}">Abrir</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhuma receita emitida neste atendimento.</p>
+  {% endif %}
+</section>
+{% endblock %}

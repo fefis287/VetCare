@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar vacina' if vacina else 'Nova vacina' }} — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div><h1>{{ 'Editar vacina' if vacina else 'Nova vacina' }}</h1></div>
+</div>
+
+<section class="bloco"><div class="bloco-corpo">
+<form method="post">
+  <div class="linha">
+    <div class="campo">
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" required value="{{ vacina.nome if vacina else '' }}">
+    </div>
+    <div class="campo">
+      <label for="fabricante">Fabricante</label>
+      <input type="text" id="fabricante" name="fabricante" value="{{ vacina.fabricante or '' if vacina else '' }}">
+    </div>
+  </div>
+  <div class="linha">
+    <div class="campo">
+      <label for="doses_recomendadas">Doses recomendadas</label>
+      <input type="number" id="doses_recomendadas" name="doses_recomendadas" min="1"
+             value="{{ vacina.doses_recomendadas if vacina else 1 }}">
+    </div>
+    <div class="campo">
+      <label for="intervalo_dias">Intervalo até o reforço (dias)</label>
+      <input type="number" id="intervalo_dias" name="intervalo_dias" min="1"
+             value="{{ vacina.intervalo_dias if vacina else 365 }}">
+      <p class="ajuda">Usado para sugerir a data da próxima dose.</p>
+    </div>
+  </div>
+  <div class="acoes">
+    <button class="botao" type="submit">Salvar vacina</button>
+    <a class="botao neutro" href="{{ url_for('admin.vacinas') }}">Cancelar</a>
+  </div>
+</form>
+</div></section>
+{% endblock %}

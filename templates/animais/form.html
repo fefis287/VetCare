@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar animal' if animal else 'Novo animal' }} — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div><h1>{{ 'Editar animal' if animal else 'Novo animal' }}</h1></div>
+</div>
+
+<section class="bloco"><div class="bloco-corpo">
+<form method="post">
+  <div class="linha">
+    <div class="campo">
+      <label for="nome">Nome do animal</label>
+      <input type="text" id="nome" name="nome" required value="{{ animal.nome if animal else '' }}">
+    </div>
+    <div class="campo">
+      <label for="tutor_id">Tutor</label>
+      <select id="tutor_id" name="tutor_id" required>
+        <option value="">Selecione</option>
+        {% for tutor in tutores %}
+          <option value="{{ tutor.id }}"
+            {{ 'selected' if (animal and animal.tutor_id == tutor.id) or (not animal and tutor_sugerido == tutor.id) }}>
+            {{ tutor.nome }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="linha">
+    <div class="campo">
+      <label for="especie_id">Espécie</label>
+      <select id="especie_id" name="especie_id" required>
+        <option value="">Selecione</option>
+        {% for especie in especies %}
+          <option value="{{ especie.id }}" {{ 'selected' if animal and animal.especie_id == especie.id }}>{{ especie.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="raca_id">Raça</label>
+      <select id="raca_id" name="raca_id">
+        <option value="">Não informada</option>
+        {% for raca in racas %}
+          <option value="{{ raca.id }}" {{ 'selected' if animal and animal.raca_id == raca.id }}>{{ raca.nome }} ({{ raca.especie.nome }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="sexo">Sexo</label>
+      <select id="sexo" name="sexo">
+        <option value="">Não informado</option>
+        {% for op in ['Macho', 'Fêmea'] %}
+          <option value="{{ op }}" {{ 'selected' if animal and animal.sexo == op }}>{{ op }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="linha">
+    <div class="campo">
+      <label for="data_nascimento">Data de nascimento</label>
+      <input type="date" id="data_nascimento" name="data_nascimento"
+             value="{{ animal.data_nascimento.isoformat() if animal and animal.data_nascimento else '' }}">
+    </div>
+    <div class="campo">
+      <label for="peso">Peso (kg)</label>
+      <input type="text" id="peso" name="peso" value="{{ animal.peso if animal and animal.peso else '' }}">
+    </div>
+    <div class="campo">
+      <label for="pelagem">Pelagem</label>
+      <input type="text" id="pelagem" name="pelagem" value="{{ animal.pelagem or '' if animal else '' }}">
+    </div>
+  </div>
+
+  <div class="campo">
+    <label for="observacoes">Observações</label>
+    <textarea id="observacoes" name="observacoes">{{ animal.observacoes or '' if animal else '' }}</textarea>
+    <p class="ajuda">Alergias conhecidas, temperamento, cuidados especiais.</p>
+  </div>
+
+  <div class="campo marcador">
+    <input type="checkbox" id="ativo" name="ativo" {{ 'checked' if (animal is none or animal.ativo) }}>
+    <label for="ativo" style="margin:0">Cadastro ativo</label>
+  </div>
+
+  <div class="acoes">
+    <button class="botao" type="submit">Salvar animal</button>
+    <a class="botao neutro" href="{{ url_for('cadastros.animais') }}">Cancelar</a>
+  </div>
+</form>
+</div></section>
+{% endblock %}

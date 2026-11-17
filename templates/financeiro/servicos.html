@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Serviços — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div><h1>Serviços</h1><p>Tabela de preços da clínica</p></div>
+  {% if usuario.perfil == 'administrador' %}
+    <a class="botao" href="{{ url_for('financeiro.form_servico') }}">Novo serviço</a>
+  {% endif %}
+</div>
+
+<section class="bloco">
+  {% if servicos %}
+  <table>
+    <thead><tr><th>Serviço</th><th>Descrição</th><th class="numero">Preço</th><th>Situação</th>{% if usuario.perfil == 'administrador' %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for s in servicos %}
+      <tr>
+        <td>{{ s.nome }}</td>
+        <td>{{ s.descricao or '—' }}</td>
+        <td class="numero">{{ s.preco | dinheiro }}</td>
+        <td><span class="selo {{ 'verde' if s.ativo else 'vermelho' }}">{{ 'ativo' if s.ativo else 'inativo' }}</span></td>
+        {% if usuario.perfil == 'administrador' %}
+        <td><a class="botao neutro pequeno" href="{{ url_for('financeiro.form_servico', servico_id=s.id) }}">Editar</a></td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhum serviço cadastrado.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block titulo %}{{ animal.nome }} — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div>
+    <h1>{{ animal.nome }}</h1>
+    <p>{{ animal.especie.nome }}{% if animal.raca %} · {{ animal.raca.nome }}{% endif %} ·
+       tutor <a href="{{ url_for('cadastros.ficha_tutor', tutor_id=animal.tutor_id) }}">{{ animal.tutor.nome }}</a></p>
+  </div>
+  <div class="acoes-linha">
+    {% if usuario.perfil in ['administrador', 'recepcao'] %}
+      <a class="botao neutro" href="{{ url_for('cadastros.form_animal', animal_id=animal.id) }}">Editar</a>
+    {% endif %}
+    {% if usuario.perfil in ['administrador', 'veterinario'] %}
+      <a class="botao neutro" href="{{ url_for('clinico.aplicar_vacina', animal_id=animal.id) }}">Registrar vacina</a>
+    {% endif %}
+  </div>
+</div>
+
+<section class="bloco">
+  <h2>Dados do animal</h2>
+  <div class="bloco-corpo definicoes">
+    <div><span>Sexo</span><b>{{ animal.sexo or '—' }}</b></div>
+    <div><span>Nascimento</span><b>{{ animal.data_nascimento | data }}</b></div>
+    <div><span>Idade</span><b>{{ animal.idade }}</b></div>
+    <div><span>Peso</span><b>{{ animal.peso ~ ' kg' if animal.peso else '—' }}</b></div>
+    <div><span>Pelagem</span><b>{{ animal.pelagem or '—' }}</b></div>
+    <div><span>Telefone do tutor</span><b>{{ animal.tutor.telefone }}</b></div>
+  </div>
+  {% if animal.observacoes %}
+    <div class="bloco-corpo" style="border-top:1px solid var(--borda)">
+      <span style="font-size:12px;color:var(--tinta-fraca)">Observações</span>
+      <p class="texto-clinico">{{ animal.observacoes }}</p>
+    </div>
+  {% endif %}
+</section>
+
+<section class="bloco">
+  <h2>Últimas consultas</h2>
+  {% if agendamentos %}
+  <table>
+    <thead><tr><th>Data</th><th>Veterinário</th><th>Motivo</th><th>Situação</th></tr></thead>
+    <tbody>
+      {% for item in agendamentos %}
+      <tr>
+        <td><a href="{{ url_for('agenda.detalhe', agendamento_id=item.id) }}">{{ item.data_hora | datahora }}</a></td>
+        <td>{{ item.veterinario.nome }}</td>
+        <td>{{ item.motivo }}</td>
+        <td><span class="selo {{ 'verde' if item.status == 'atendido' else 'azul' }}">{{ item.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhuma consulta registrada.</p>
+  {% endif %}
+</section>
+
+<section class="bloco">
+  <h2>Carteira de vacinação</h2>
+  {% if aplicacoes %}
+  <table>
+    <thead><tr><th>Vacina</th><th>Dose</th><th>Aplicada em</th><th>Próxima dose</th><th>Lote</th></tr></thead>
+    <tbody>
+      {% for ap in aplicacoes %}
+      <tr>
+        <td>{{ ap.vacina.nome }}</td>
+        <td>{{ ap.dose }}ª</td>
+        <td>{{ ap.data_aplicacao | data }}</td>
+        <td>
+          {{ ap.proxima_dose | data }}
+          {% if ap.vencida %}<span class="selo vermelho">vencida</span>{% endif %}
+        </td>
+        <td>{{ ap.lote or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhuma vacina registrada para este animal.</p>
+  {% endif %}
+</section>
+
+{% if usuario.perfil in ['administrador', 'veterinario'] %}
+<section class="bloco">
+  <h2>Histórico clínico</h2>
+  {% if prontuarios %}
+  <table>
+    <thead><tr><th>Data</th><th>Veterinário</th><th>Diagnóstico</th><th></th></tr></thead>
+    <tbody>
+      {% for p in prontuarios %}
+      <tr>
+        <td>{{ p.data | data }}</td>
+        <td>{{ p.veterinario.nome }}</td>
+        <td>{{ p.diagnostico[:70] }}{{ '…' if p.diagnostico|length > 70 }}</td>
+        <td><a class="botao neutro pequeno" href="{{ url_for('clinico.ver_prontuario', prontuario_id=p.id) }}">Abrir</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhum prontuário visível para o seu perfil.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

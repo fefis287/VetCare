@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+vetcare.db
+.venv/
+venv/
+.vscode/

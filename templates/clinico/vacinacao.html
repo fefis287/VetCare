@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Vacinação — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div><h1>Vacinação</h1><p>Aplicações registradas e reforços previstos</p></div>
+  {% if usuario.perfil in ['administrador', 'veterinario'] %}
+    <a class="botao" href="{{ url_for('clinico.aplicar_vacina') }}">Registrar aplicação</a>
+  {% endif %}
+</div>
+
+<section class="bloco">
+  {% if aplicacoes %}
+  <table>
+    <thead><tr><th>Animal</th><th>Tutor</th><th>Vacina</th><th>Dose</th><th>Aplicada em</th><th>Próxima dose</th><th>Aplicada por</th></tr></thead>
+    <tbody>
+      {% for ap in aplicacoes %}
+      <tr>
+        <td><a href="{{ url_for('cadastros.ficha_animal', animal_id=ap.animal_id) }}">{{ ap.animal.nome }}</a></td>
+        <td>{{ ap.animal.tutor.nome }}</td>
+        <td>{{ ap.vacina.nome }}</td>
+        <td>{{ ap.dose }}ª</td>
+        <td>{{ ap.data_aplicacao | data }}</td>
+        <td>
+          {{ ap.proxima_dose | data }}
+          {% if ap.vencida %}<span class="selo vermelho">vencida</span>{% endif %}
+        </td>
+        <td>{{ ap.veterinario.nome if ap.veterinario else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhuma aplicação registrada.</p>
+  {% endif %}
+</section>
+{% endblock %}

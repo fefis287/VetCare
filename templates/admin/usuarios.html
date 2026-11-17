@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titulo %}Usuários — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div><h1>Usuários</h1><p>Quem tem acesso ao sistema e com qual perfil</p></div>
+  <a class="botao" href="{{ url_for('admin.form_usuario') }}">Novo usuário</a>
+</div>
+
+<section class="bloco">
+  <table>
+    <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th></th></tr></thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>{{ u.nome }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.rotulo_perfil }}</td>
+        <td><span class="selo {{ 'verde' if u.ativo else 'vermelho' }}">{{ 'ativo' if u.ativo else 'desativado' }}</span></td>
+        <td class="acoes-linha">
+          <a class="botao neutro pequeno" href="{{ url_for('admin.form_usuario', usuario_id=u.id) }}">Editar</a>
+          {% if u.id != usuario.id %}
+          <form class="embutido" method="post" action="{{ url_for('admin.alternar_acesso', usuario_id=u.id) }}">
+            <button class="botao {{ 'perigo' if u.ativo else 'neutro' }} pequeno" type="submit">
+              {{ 'Desativar' if u.ativo else 'Reativar' }}
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

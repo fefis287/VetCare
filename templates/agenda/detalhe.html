@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titulo %}Consulta de {{ agendamento.animal.nome }} — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div>
+    <h1>{{ agendamento.animal.nome }}</h1>
+    <p>{{ agendamento.data_hora | datahora }} com {{ agendamento.veterinario.nome }}</p>
+  </div>
+  <div class="acoes-linha">
+    {% if usuario.perfil in ['administrador', 'recepcao'] %}
+      <a class="botao neutro" href="{{ url_for('agenda.form', agendamento_id=agendamento.id) }}">Editar</a>
+    {% endif %}
+    {% if usuario.perfil in ['administrador', 'veterinario'] %}
+      {% if agendamento.prontuario %}
+        <a class="botao" href="{{ url_for('clinico.ver_prontuario', prontuario_id=agendamento.prontuario.id) }}">Ver prontuário</a>
+      {% elif agendamento.status != 'cancelado' %}
+        <a class="botao" href="{{ url_for('clinico.registrar_prontuario', agendamento_id=agendamento.id) }}">Registrar atendimento</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<section class="bloco">
+  <h2>Dados da consulta</h2>
+  <div class="bloco-corpo definicoes">
+    <div><span>Animal</span><b><a href="{{ url_for('cadastros.ficha_animal', animal_id=agendamento.animal_id) }}">{{ agendamento.animal.nome }}</a></b></div>
+    <div><span>Tutor</span><b>{{ agendamento.animal.tutor.nome }}</b></div>
+    <div><span>Telefone</span><b>{{ agendamento.animal.tutor.telefone }}</b></div>
+    <div><span>Motivo</span><b>{{ agendamento.motivo }}</b></div>
+    <div><span>Situação</span><b>{{ agendamento.status }}</b></div>
+    <div><span>Marcada por</span><b>{{ agendamento.criado_por.nome if agendamento.criado_por else '—' }}</b></div>
+  </div>
+  {% if agendamento.observacoes %}
+  <div class="bloco-corpo" style="border-top:1px solid var(--borda)">
+    <span style="font-size:12px;color:var(--tinta-fraca)">Observações</span>
+    <p class="texto-clinico">{{ agendamento.observacoes }}</p>
+  </div>
+  {% endif %}
+</section>
+
+{% if agendamento.status != 'cancelado' %}
+<section class="bloco">
+  <h2>Mudar situação</h2>
+  <div class="bloco-corpo acoes-linha">
+    {% for s in ['confirmado', 'atendido', 'cancelado'] %}
+      {% if agendamento.status != s %}
+      <form class="embutido" method="post" action="{{ url_for('agenda.mudar_status', agendamento_id=agendamento.id, novo=s) }}">
+        <button class="botao neutro pequeno" type="submit">Marcar como {{ s }}</button>
+      </form>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if usuario.perfil in ['administrador', 'recepcao'] %}
+<section class="bloco">
+  <h2>Cobrança</h2>
+  {% if agendamento.pagamentos %}
+  <table>
+    <thead><tr><th>Serviço</th><th class="numero">Valor</th><th>Forma</th><th>Situação</th></tr></thead>
+    <tbody>
+      {% for pg in agendamento.pagamentos %}
+      <tr>
+        <td>{{ pg.servico.nome }}</td>
+        <td class="numero">{{ pg.valor | dinheiro }}</td>
+        <td>{{ pg.forma_pagamento or '—' }}</td>
+        <td><span class="selo {% if pg.status == 'pago' %}verde{% elif pg.status == 'cancelado' %}vermelho{% else %}amarelo{% endif %}">{{ pg.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="vazio">Nenhum lançamento para esta consulta.</p>
+  {% endif %}
+  <div class="bloco-corpo" style="border-top:1px solid var(--borda)">
+    <a class="botao neutro" href="{{ url_for('financeiro.novo_pagamento', agendamento_id=agendamento.id) }}">Lançar cobrança</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

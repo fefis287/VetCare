@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}VetCare{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+</head>
+<body>
+<div class="estrutura">
+
+  <aside class="lateral">
+    <div class="marca">
+      <strong>VetCare</strong>
+      <span>Gestão de clínica veterinária</span>
+    </div>
+
+    <nav class="menu">
+      <a href="{{ url_for('painel.inicio') }}">Painel</a>
+      <a href="{{ url_for('agenda.lista') }}">Agenda</a>
+
+      <h4>Cadastros</h4>
+      <a href="{{ url_for('cadastros.tutores') }}">Tutores</a>
+      <a href="{{ url_for('cadastros.animais') }}">Animais</a>
+      {% if usuario.perfil in ['administrador', 'recepcao'] %}
+        <a href="{{ url_for('cadastros.veterinarios') }}">Veterinários</a>
+      {% endif %}
+
+      <h4>Atendimento</h4>
+      {% if usuario.perfil in ['administrador', 'veterinario'] %}
+        <a href="{{ url_for('clinico.prontuarios') }}">Prontuários</a>
+      {% endif %}
+      <a href="{{ url_for('clinico.vacinacao') }}">Vacinação</a>
+
+      {% if usuario.perfil in ['administrador', 'recepcao'] %}
+        <h4>Financeiro</h4>
+        <a href="{{ url_for('financeiro.pagamentos') }}">Pagamentos</a>
+        <a href="{{ url_for('financeiro.servicos') }}">Serviços</a>
+      {% endif %}
+
+      {% if usuario.perfil == 'administrador' %}
+        <h4>Administração</h4>
+        <a href="{{ url_for('admin.usuarios') }}">Usuários</a>
+        <a href="{{ url_for('admin.vacinas') }}">Catálogo de vacinas</a>
+      {% endif %}
+    </nav>
+
+    <div class="rodape-lateral">
+      <strong>{{ usuario.nome }}</strong>
+      <span>{{ usuario.rotulo_perfil }}</span>
+      <div style="margin-top:8px"><a href="{{ url_for('auth.sair') }}">Sair do sistema</a></div>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, texto in mensagens %}
+        <div class="aviso-barra {{ categoria }}">{{ texto }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% block conteudo %}{% endblock %}
+  </main>
+
+</div>
+</body>
+</html>

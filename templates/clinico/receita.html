@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Receita — VetCare{% endblock %}
+
+{% block conteudo %}
+<div class="titulo-pagina">
+  <div>
+    <h1>Receituário</h1>
+    <p>{{ receita.data | datahora }} · {{ receita.prontuario.veterinario.nome }} (CRMV {{ receita.prontuario.veterinario.crmv }})</p>
+  </div>
+  <a class="botao neutro" href="#" onclick="window.print();return false">Imprimir</a>
+</div>
+
+<section class="bloco">
+  <h2>Paciente</h2>
+  <div class="bloco-corpo definicoes">
+    <div><span>Animal</span><b>{{ receita.prontuario.animal.nome }}</b></div>
+    <div><span>Espécie</span><b>{{ receita.prontuario.animal.especie.nome }}</b></div>
+    <div><span>Peso</span><b>{{ receita.prontuario.peso_registrado ~ ' kg' if receita.prontuario.peso_registrado else '—' }}</b></div>
+    <div><span>Tutor</span><b>{{ receita.prontuario.animal.tutor.nome }}</b></div>
+  </div>
+</section>
+
+<section class="bloco">
+  <h2>Prescrição</h2>
+  <table>
+    <thead><tr><th>Medicamento</th><th>Dosagem</th><th>Via</th><th>Frequência</th><th>Duração</th></tr></thead>
+    <tbody>
+      {% for item in receita.itens %}
+      <tr>
+        <td>{{ item.medicamento }}</td>
+        <td>{{ item.dosagem }}</td>
+        <td>{{ item.via or '—' }}</td>
+        <td>{{ item.frequencia or '—' }}</td>
+        <td>{{ item.duracao or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if receita.orientacoes %}
+  <div class="bloco-corpo" style="border-top:1px solid var(--borda)">
+    <span style="font-size:12px;color:var(--tinta-fraca)">Orientações ao tutor</span>
+    <p class="texto-clinico">{{ receita.orientacoes }}</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
